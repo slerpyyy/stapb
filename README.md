@@ -1,14 +1,22 @@
 # stapb
 *simple thread-safe ascii-only progress bar*
 
+A simple ascii-only progress bar, which can safely be used in concurrent code.
+This implementation is non-blocking.
+
+The progress bar is eagerly printed on every call unless another thread is in
+the process of printing it. It uses atomics to store the status of the progress
+bar as well as a mutex lock to ensure only a single thread is printing
+to `std::cout` at a time.
+
 ## Usage
 
 You can interface with the progress bar using the following macros:
 ```cpp
-PROG_INIT(N)  // start progress bar with total of N
-PROG_SET(N)   // override current progress bar with N
-PROG_ADD(N)   // add N to the progress bar
-PROG_INC      // increment progress bar by 1
+PROG_INIT(N);  // start progress bar with total of N
+PROG_SET(N);   // override current progress bar with N
+PROG_ADD(N);   // add N to the progress bar
+PROG_INC;      // increment progress bar by 1
 ```
 ...or by using the `ProgressBar` class directly:
 ```cpp
@@ -32,25 +40,22 @@ void compute() {
 
     #pragma omp parallel for
     for (int i = 0; i < total; i++) {
-        auto duration = std::chrono::milliseconds(100);
-        std::this_thread::sleep_for(duration);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         PROG_INC;
     }
 }
 ```
-
 This produces the following output:
-
 ```
 compute [#######################---------] 70.50%, rate: 0.10k#/s elapsed: 9.68s, left: 4.05s
    ^                   ^                     ^            ^                 ^            ^
    1                   2                     3            4                 5            6
 ```
 
-1) name of the function
-2) loading bar
-3) percentage
-4) rate of change (in 1000 per second)
-5) the time since the progress bar was started
-6) approximate time remaining
+1) The name of the function (as taken from `__func__`)
+2) A visual loading bar
+3) The current percentage
+4) The rate of change (in 1000 per second)
+5) The time since the progress bar was started (in seconds)
+6) The approximate time remaining (in seconds)
