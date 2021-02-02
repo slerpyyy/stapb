@@ -1,8 +1,9 @@
 #ifndef STAPB_HPP
 #define STAPB_HPP
 
-#include <chrono>
 #include <string>
+#include <chrono>
+#include <atomic>
 
 #define PROG_INIT(N) ProgressBar _progress_bar(__func__, (uint64_t)(N))
 #define PROG_SET(N)  _progress_bar.set((N))
@@ -22,8 +23,7 @@ private:
     void update(bool force_update = false);
 
     std::string m_name;
-    uint64_t m_curr;
-    uint64_t m_next;
+    std::atomic<uint64_t> m_curr;
     uint64_t m_total;
     std::chrono::high_resolution_clock::time_point m_start;
 };
