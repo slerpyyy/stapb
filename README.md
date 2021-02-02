@@ -2,12 +2,8 @@
 *simple thread-safe ascii-only progress bar*
 
 A simple ascii-only progress bar, which can safely be used in concurrent code.
-This implementation is non-blocking.
-
-The progress bar is eagerly printed on every call unless another thread is in
-the process of printing it. It uses atomics to store the status of the progress
-bar as well as a mutex lock to ensure only a single thread is printing
-to `std::cout` at a time.
+The progress bar is eagerly reprinted on every call unless another thread is
+already in the process of refreshing it. This implementation is lock-free.
 
 ## Usage
 
